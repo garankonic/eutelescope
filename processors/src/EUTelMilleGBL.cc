@@ -4331,13 +4331,13 @@ void EUTelMilleGBL::processEvent ( LCEvent * event )
 			unsigned int k = 0;
 			unsigned int ndim = 2;
 			Eigen::VectorXd aResiduals ( ndim );
-			Eigen::VectorXd aMeasErrors ( ndim );
+			//Eigen::VectorXd aMeasErrors ( ndim );
 			Eigen::VectorXd aResErrors ( ndim );
-			Eigen::VectorXd aDownWeights ( ndim );
-			Eigen::VectorXd aKinks ( ndim );
-			Eigen::VectorXd aKinkErrors ( ndim );
-			Eigen::VectorXd kResErrors ( ndim );
-			Eigen::VectorXd kDownWeights ( ndim );
+			//Eigen::VectorXd aDownWeights ( ndim );
+			//Eigen::VectorXd aKinks ( ndim );
+			//Eigen::VectorXd aKinkErrors ( ndim );
+			//Eigen::VectorXd kResErrors ( ndim );
+			//Eigen::VectorXd kDownWeights ( ndim );
 			Eigen::VectorXd aCorrection;
 			Eigen::MatrixXd aCovariance;
 

@@ -106,7 +106,7 @@
   <!--Input hit collections names.-->
   <parameter name="HitCollectionName" type="string" lcioInType="TrackerHit"> AlignedHit1 </parameter>
   <!--Number of alignment constants used. Available modes are: 1: shift in Z only. 2: shifts in X and Y. 3: shifts in X and Y and rotation around the Z axis, 4: shifts in X,Y and Z and rotation around the Z axis. 5: shifts in X,Y and rotations around all axis, fix Z. 6: shifts in X,Y and Z and rotations around all axis. 7: Shifts in X, Y and Z. Note that in modes 5 and 6, alignment constants in alpha and beta will only be returned for rotated/tilted sensors.-->
-  <parameter name="AlignMode" type="int" value="3"/>
+  <parameter name="AlignMode" type="int" value="5"/>
   <!--All alignment collection names which have been applied must be entered here. The order should correspond to their application, i.e.: alignment1 alignment2 etc.-->
   <parameter name="AlignmentCollectionName" type="StringVec" value="alignment1"/>
   <!--This is the name of the alignment collection to be saved into the lcio file.-->

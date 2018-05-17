@@ -20,6 +20,7 @@
       <processor name="CombinedHitMaker"/>
       <processor name="CombinedHitMakerMPA"/>
       <processor name="CombinedHitMakerFEI4"/>
+      <processor name="CombinedHitMakerCMSP"/>
       <processor name="Correlator"/>
       <processor name="PreAligner"/>
       <processor name="Save"/>
@@ -78,6 +79,19 @@ to the external frame of reference using the GEAR geometry description-->
 to the external frame of reference using the GEAR geometry description-->
   <!--Input cluster collection name-->
   <parameter name="PulseCollectionName" type="string" lcioInType="TrackerPulse"> cluster_apix </parameter>
+  <!--Output hit collection name-->
+  <parameter name="HitCollectionName" type="string" lcioOutType="TrackerHit"> hit </parameter>
+  <!--Hit coordinates are calculated in local reference frame of sensor-->
+  <!--parameter name="EnableLocalCoordidates" type="bool" value="false"/-->
+  <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
+  <parameter name="Verbosity" type="string" value="MESSAGE3"/>
+</processor>
+
+ <processor name="CombinedHitMakerCMSP" type="EUTelProcessorHitMaker">
+ <!--EUTelProcessorHitMaker is responsible to translate cluster centers from the local frame of reference 
+to the external frame of reference using the GEAR geometry description-->
+  <!--Input cluster collection name-->
+  <parameter name="PulseCollectionName" type="string" lcioInType="TrackerPulse"> cluster_cmspix </parameter>
   <!--Output hit collection name-->
   <parameter name="HitCollectionName" type="string" lcioOutType="TrackerHit"> hit </parameter>
   <!--Hit coordinates are calculated in local reference frame of sensor-->

@@ -17,3 +17,7 @@ jobsub.py -c config.cfg -csv runlist.csv hitmaker $1
 jobsub.py -c config.cfg -csv runlist.csv alignment-gbl-1 $1
 jobsub.py -c config.cfg -csv runlist.csv alignment-gbl-2 $1
 jobsub.py -c config.cfg -csv runlist.csv alignment-gbl-3 $1
+jobsub.py -c config.cfg -csv runlist.csv alignment-gbl-4 $1
+jobsub.py -c config.cfg -csv runlist.csv alignment-gbl-5 $1
+jobsub.py -c config.cfg -csv runlist.csv tracking-gbl $1
+
