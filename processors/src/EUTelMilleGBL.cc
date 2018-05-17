@@ -4811,7 +4811,7 @@ void EUTelMilleGBL::processEvent ( LCEvent * event )
 			    ay_prev = aCorrection[2];
 
 			    TrackerHitImpl * fitpoint7 = new TrackerHitImpl;
-			    fitHitEncoder["sensorID"] =  7;
+			    fitHitEncoder["sensorID"] =  _useREF;
 			    fitHitEncoder["properties"] = kFittedHit;
 			    fitHitEncoder.setCellID ( fitpoint7 );
 

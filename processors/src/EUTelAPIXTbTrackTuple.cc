@@ -26,7 +26,7 @@ EUTelAPIXTbTrackTuple::EUTelAPIXTbTrackTuple()
       _inputTrackerHitColName(""), _inputTelPulseCollectionName(""),
       _inputDutPulseCollectionName(""), _telZsColName(""), _dutZsColName(""),
       _path2file(""), _DUTIDs(std::vector<int>()),
-      _upstreamIDs ( std::vector < int > ( ) ), _downstreamIDs ( std::vector < int > ( ) ), _refID ( NULL ),
+      _upstreamIDs ( std::vector < int > ( ) ), _downstreamIDs ( std::vector < int > ( ) ), _refID ( ),
       _nRun(0), _nEvt(0),
       _runNr(0), _evtNr(0), _isFirstEvent(false), _file(NULL), _eutracks(NULL),
       _nTrackParams(0), _xPos(NULL), _yPos(NULL), _dxdz_up(NULL), _dydz_up(NULL), _dxdz_down(NULL), _dydz_down(NULL),
@@ -275,7 +275,7 @@ bool EUTelAPIXTbTrackTuple::readTracks(LCEvent *event) {
 	  }
       }
       
-      if ( _refID >= 0 && sensorID == _refID )
+      if ( sensorID == _refID )
       {
 	  ref_x = pos[0];
 	  ref_y = pos[1];
@@ -301,9 +301,6 @@ bool EUTelAPIXTbTrackTuple::readTracks(LCEvent *event) {
       dydz_up = ( upsteam2pos_y - upsteam1pos_y ) / ( upsteam2pos_z - upsteam1pos_z );
       dxdz_down = ( downsteam2pos_x - downsteam1pos_x ) / ( downsteam2pos_z - downsteam1pos_z );
       dydz_down = ( downsteam2pos_y - downsteam1pos_y ) / ( downsteam2pos_z - downsteam1pos_z );
-      
-      //std::cout << "up" << dxdz_up << " " << dydz_up << std::endl;
-      //std::cout << "dn" << dxdz_down << " " << dydz_down << std::endl;
 
       // eutrack tree
       _xPos->push_back(x);
