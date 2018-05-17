@@ -26,7 +26,7 @@ EUTelAPIXTbTrackTuple::EUTelAPIXTbTrackTuple()
       _inputTrackerHitColName(""), _inputTelPulseCollectionName(""),
       _inputDutPulseCollectionName(""), _telZsColName(""), _dutZsColName(""),
       _path2file(""), _DUTIDs(std::vector<int>()),
-      _upstreamIDs ( std::vector < int > ( ) ), _downstreamIDs ( std::vector < int > ( ) ),
+      _upstreamIDs ( std::vector < int > ( ) ), _downstreamIDs ( std::vector < int > ( ) ), _refID ( NULL ),
       _nRun(0), _nEvt(0),
       _runNr(0), _evtNr(0), _isFirstEvent(false), _file(NULL), _eutracks(NULL),
       _nTrackParams(0), _xPos(NULL), _yPos(NULL), _dxdz_up(NULL), _dydz_up(NULL), _dxdz_down(NULL), _dydz_down(NULL),
@@ -61,6 +61,8 @@ EUTelAPIXTbTrackTuple::EUTelAPIXTbTrackTuple()
     registerProcessorParameter ( "UpstreamTelescopeIDs", "Int std::vector containing the IDs of the upstream telescope planes", _upstreamIDs, std::vector < int > ( ) );
 
     registerProcessorParameter ( "DownstreamTelescopeIDs", "Int std::vector containing the IDs of the downstream telescope planes", _downstreamIDs, std::vector < int > ( ) );
+
+    registerProcessorParameter ( "ReferencePlaneID", "ID of the reference plane", _refID, int ( ) );
 }
 
 void EUTelAPIXTbTrackTuple::init() {
@@ -220,6 +222,8 @@ bool EUTelAPIXTbTrackTuple::readTracks(LCEvent *event) {
     double downsteam2pos_x = 0.0;
     double downsteam2pos_y = 0.0;
     double downsteam2pos_z = 0.0;
+    double ref_x = 0.0;
+    double ref_y = 0.0;
     std::vector<EVENT::TrackerHit *> trackhits = fittrack->getTrackerHits();
     double chi2 = fittrack->getChi2();
     double ndof = fittrack->getNdf();
@@ -270,6 +274,12 @@ bool EUTelAPIXTbTrackTuple::readTracks(LCEvent *event) {
 	      downsteam2pos_z = pos[2];
 	  }
       }
+      
+      if ( _refID >= 0 && sensorID == _refID )
+      {
+	  ref_x = pos[0];
+	  ref_y = pos[1];
+      }
 
       // Dump the (fitted) hits for the DUTs
       if (std::find(_DUTIDs.begin(), _DUTIDs.end(), sensorID) ==
@@ -291,6 +301,9 @@ bool EUTelAPIXTbTrackTuple::readTracks(LCEvent *event) {
       dydz_up = ( upsteam2pos_y - upsteam1pos_y ) / ( upsteam2pos_z - upsteam1pos_z );
       dxdz_down = ( downsteam2pos_x - downsteam1pos_x ) / ( downsteam2pos_z - downsteam1pos_z );
       dydz_down = ( downsteam2pos_y - downsteam1pos_y ) / ( downsteam2pos_z - downsteam1pos_z );
+      
+      //std::cout << "up" << dxdz_up << " " << dydz_up << std::endl;
+      //std::cout << "dn" << dxdz_down << " " << dydz_down << std::endl;
 
       // eutrack tree
       _xPos->push_back(x);
@@ -299,6 +312,8 @@ bool EUTelAPIXTbTrackTuple::readTracks(LCEvent *event) {
       _dydz_up->push_back(dydz_up);
       _dxdz_down->push_back(dxdz_down);
       _dydz_down->push_back(dydz_down);
+      _refx->push_back(ref_x);
+      _refy->push_back(ref_y);
       _trackIden->push_back(sensorID);
       _trackNum->push_back(itrack);
       _chi2->push_back(chi2);
@@ -383,6 +398,8 @@ void EUTelAPIXTbTrackTuple::clear() {
   _dydz_up->clear();
   _dxdz_down->clear();
   _dydz_down->clear();
+  _refx->clear();
+  _refy->clear();
   _trackNum->clear();
   _trackIden->clear();
   _chi2->clear();
@@ -403,6 +420,8 @@ void EUTelAPIXTbTrackTuple::prepareTree() {
   _dydz_up = new std::vector<double>();
   _dxdz_down = new std::vector<double>();
   _dydz_down = new std::vector<double>();
+  _refx = new std::vector<double>();
+  _refy = new std::vector<double>();
   _trackIden = new std::vector<int>();
   _trackNum = new std::vector<int>();
   _chi2 = new std::vector<double>();
@@ -457,6 +476,8 @@ void EUTelAPIXTbTrackTuple::prepareTree() {
   _eutracks->Branch("dydz_up", &_dydz_up);
   _eutracks->Branch("dxdz_down", &_dxdz_down);
   _eutracks->Branch("dydz_down", &_dydz_down);
+  _eutracks->Branch("refx", &_refx);
+  _eutracks->Branch("refy", &_refy);
   _eutracks->Branch("trackNum", &_trackNum);
   _eutracks->Branch("iden", &_trackIden);
   _eutracks->Branch("chi2", &_chi2);

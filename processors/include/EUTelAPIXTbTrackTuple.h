@@ -45,6 +45,7 @@ namespace eutelescope {
     std::vector<int> _DUTIDs;
     std::vector<int> _upstreamIDs;
     std::vector<int> _downstreamIDs;
+    int _refID;
     std::map<int, float> _xSensSize;
     std::map<int, float> _ySensSize;
 
@@ -67,6 +68,8 @@ namespace eutelescope {
     std::vector<double> *_dydz_up;
     std::vector<double> *_dxdz_down;
     std::vector<double> *_dydz_down;
+    std::vector<double> *_refx;
+    std::vector<double> *_refy;
     std::vector<int> *_trackIden;
     std::vector<int> *_trackNum;
     std::vector<double> *_chi2;
