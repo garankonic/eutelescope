@@ -54,6 +54,8 @@ namespace eutelescope
 
 	    std::string _inputHitCollectionName;
 
+	    std::string _inputFitHitCollectionName;
+
 	    std::string _outputHitCollectionName;
 
 	    int _dutPlane1;
@@ -63,6 +65,8 @@ namespace eutelescope
 	    bool _keepDUTHits;
 
 	    float _maxResidual;
+
+	    float _trackResidualCut;
 
 	    int _outputSensorID;
 

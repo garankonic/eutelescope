@@ -810,7 +810,7 @@
   <!--This is the name of the reference hit collection-->
   <!--parameter name="ReferenceCollection" type="string" value="referenceHit"/-->
   <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
-  <!--parameter name="Verbosity" type="string" value=""/-->
+  <parameter name="Verbosity" type="string" value="MESSAGE0"/>
   <!--List of alignment collections that were applied to the DUT-->
   <parameter name="alignmentCollectionNames" type="StringVec" value="alignment10"/>
   <!--List of hit collections. First one is INPUT collection, every subsequent corresponds to applying alignment collection-->
@@ -836,7 +836,7 @@
   <!--Cut in Chi2/Ndf, tracks below are accepted.-->
   <parameter name="Chi2NdfCut" type="double" value="10"/>
   <!--The coordinator step PreAlignment to be loaded.-->
-  <!--parameter name="CoordinatorPreAlignmentCollectionName" type="string" value="coordinatorprealignment"/-->
+  <!--parameter name="CoordinatorPreAlignmentCollectionName" te="string" value="coordinatorprealignment"/-->
   <!--Method with which to get the DUT fit position: 0 = centre of the DUT (bad if DUT is rotated), 1 = extrapolate from triplet and get intersect with plane, 2 = extrapolate from driplet, 3 = get average from methods 1 and 2.-->
   <parameter name="DUTFitMethod" type="int" value="1"/>
   <!--DUT resolution in x [um].-->
@@ -850,7 +850,7 @@
   <!--Beam energy in GeV.-->
   <parameter name="Ebeam" type="double" value="@Energy@"/>
   <!--Exclude planes from tracking and alignment, according to their sensor ids.-->
-  <parameter name="ExcludePlanes" type="IntVec"> 60 61 </parameter>
+  <parameter name="ExcludePlanes" type="IntVec"> 61 60 </parameter>
   <!--Fixes the given alignment parameters of a sensor in the fit. For each sensor (even excluded ones) an integer must be specified. If no value or not enough values are given, then all parameters will be free. Bit 0 = x shift, bit 1 = y shift, bit 2 = z shift, bit 3 = alpha, bit 4 = beta, bit 5 = gamma. Note: these numbers are ordered according to the z position of the sensors and NOT according to the sensor id. This can override free parameters from AlignMode.-->
   <!--parameter name="FixParameter" type="IntVec"> </parameter-->
   <!--Fix position of sensor planes in the fit according to their sensor ids.-->
@@ -894,7 +894,7 @@
   <!--Use Reference Plane? If so, set the sensor id (usually 7). To deactivate, set to 0 or below.-->
   <parameter name="UseREF" type="int" value="@SetupRef@"/>
   <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
-  <parameter name="Verbosity" type="string" value="DEBUG9"/>
+  <parameter name="Verbosity" type="string" value="MESSAGE0"/>
   <!--Flag to enable X0 scattering histograms. Will need lots of memory!-->
   <!--parameter name="X0Histos" type="bool" value="false"/-->
   <!--Downstream triplet residual cut [um].-->

@@ -117,7 +117,7 @@
   <!--The maximum allowed number of clusters in an event, events with more clusters will be discarded-->
   <parameter name="MaxClusterCountPerEvent" type="int" value="4"/>
   <!--The maximum allowed cluster size, larger clusters will be discarded as noise-->
-  <parameter name="MaxClusterSize" type="int" value="4"/>
+  <parameter name="MaxClusterSize" type="int" value="8"/>
   <!--The unsensitive axis of the CBC-->
   <parameter name="NonSensitiveAxis" type="string" value="@UnsensAxis@"/>
   <!--The sensor id to write-->

@@ -398,7 +398,7 @@ void EUTelProcessorHitMaker::processEvent (LCEvent * event) {
 
 					// HACK TE 29.11.2017
 					// we catch the edge pixels of a CMS pixel module
-					if ( sensorID == 9 && ( _pulseCollectionName != "cluster_cmspix_sim") )
+					if ( sensorID == 9 )
 					{
 					    int xoff = xCoG / 52;
 					    xDet += ( ( xoff * 0.3 ) + 0.150 );

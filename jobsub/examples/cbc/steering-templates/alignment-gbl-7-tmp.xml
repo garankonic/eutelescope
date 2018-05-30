@@ -572,9 +572,10 @@
   <!--Beam energy in GeV.-->
   <parameter name="Ebeam" type="double" value="@Energy@"/>
   <!--Exclude planes from tracking and alignment, according to their sensor ids.-->
-  <parameter name="ExcludePlanes" type="IntVec"> 60 61 </parameter>
+  <parameter name="ExcludePlanes" type="IntVec"> 61 60 </parameter>
   <!--Fixes the given alignment parameters of a sensor in the fit. For each sensor (even excluded ones) an integer must be specified. If no value or not enough values are given, then all parameters will be free. Bit 0 = x shift, bit 1 = y shift, bit 2 = z shift, bit 3 = alpha, bit 4 = beta, bit 5 = gamma. Note: these numbers are ordered according to the z position of the sensors and NOT according to the sensor id. This can override free parameters from AlignMode.-->
   <!--parameter name="FixParameter" type="IntVec"> </parameter-->
+  <parameter name="FixParameter" type="IntVec"> 0 0 0 0 42 0 0 0 0 0 </parameter>
   <!--Fix position of sensor planes in the fit according to their sensor ids.-->
   <parameter name="FixedPlanes" type="IntVec"> 0 1 2 3 4 5 </parameter>
   <!--Generate a steering file for pede? 0 = false, 1 = true.-->

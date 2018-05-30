@@ -905,6 +905,7 @@ void EUTelMilleGBL::getDUTNormal ( )
     _dutplane[0] = 0.0 - _coordinator_x;
     _dutplane[1] = 0.0 - _coordinator_y;
     _dutplane[2] = 0.0 - _coordinator_z;
+    streamlog_out ( MESSAGE2 ) << "DUT Plane iteration: " << "X = " << _dutplane[0] << ", Y = " << _dutplane[1] << ", Z = " << _dutplane[2] << endl;
     int dutpos = 0;
     for ( int i = 0; i < _siPlanesParameters -> getSiPlanesNumber ( ); i++ )
     {
@@ -950,6 +951,8 @@ void EUTelMilleGBL::getDUTNormal ( )
 	// add shift -> subtract it
 	TVector3 alignshift ( _dut_pre_align_x[i], _dut_pre_align_y[i], _dut_pre_align_z[i] );
 	_dutplane = _dutplane - alignshift;
+
+    	streamlog_out ( MESSAGE2 ) << "DUT Plane iteration: " << "X = " << _dutplane[0] << ", Y = " << _dutplane[1] << ", Z = " << _dutplane[2] << endl;
     }
 
     // the alignment gets added
@@ -969,10 +972,14 @@ void EUTelMilleGBL::getDUTNormal ( )
 	// add shift -> subtract it
 	TVector3 alignshift ( _dut_align_x[i],_dut_align_y[i], _dut_align_z[i] );
 	_dutplane = _dutplane - alignshift;
+
+	streamlog_out ( MESSAGE2 ) << "DUT Plane iteration: " << "X = " << _dutplane[0] << ", Y = " << _dutplane[1] << ", Z = " << _dutplane[2] << endl;
     }
 
     TVector3 initialpos ( 0.0, 0.0, _siPlaneZPosition[dutpos] + 0.5 *_siPlanesLayerLayout -> getSensitiveThickness ( dutpos ) );
     _dutplane = _dutplane + initialpos;
+
+    streamlog_out ( MESSAGE2 ) << "DUT Plane iteration: " << "X = " << _dutplane[0] << ", Y = " << _dutplane[1] << ", Z = " << _dutplane[2] << endl;
 
     // go to um
     _dutplane[0] = _dutplane[0] * 1000.0;
@@ -1264,6 +1271,11 @@ void EUTelMilleGBL::processEvent ( LCEvent * event )
     LCCollectionVec *fittrackvec = new LCCollectionVec ( LCIO::TRACK );
     LCCollectionVec *fitpointvec = new LCCollectionVec ( LCIO::TRACKERHIT );
 
+    // also want to store the normal vector
+    LCCollectionVec *dutnormalvec = new LCCollectionVec ( LCIO::LCGENERICOBJECT );
+    dutnormalvec -> parameters ( ) .setValue ( "DataDescription", "PosX:d,PosY:d,PosZ:d,NormX:d,NormY:d,NormZ:d" );
+    dutnormalvec -> parameters ( ) .setValue ( "TypeName", "DUT Pos and Normal Vector" ); 
+
     // load the alignment only once
     if ( _alignmentloaded == false )
     {
@@ -1287,6 +1299,16 @@ void EUTelMilleGBL::processEvent ( LCEvent * event )
 	getDUTNormal ( );
 	_dutplanevectors = true;
 	streamlog_out ( MESSAGE1 ) <<  "DUT position calculated..." << endl;
+	
+	// store it in the lcio
+        LCGenericObjectImpl* dutVec = new LCGenericObjectImpl ( 0, 0, 6 );
+ 	dutVec -> setDoubleVal ( 0, _dutplane[0] );
+        dutVec -> setDoubleVal ( 1, _dutplane[1] );
+        dutVec -> setDoubleVal ( 2, _dutplane[2] );
+        dutVec -> setDoubleVal ( 3, _normalvector[0] );
+        dutVec -> setDoubleVal ( 4, _normalvector[1] );
+        dutVec -> setDoubleVal ( 5, _normalvector[2] );
+        dutnormalvec -> addElement ( dutVec );
     }
 
     if ( _iEvt % 1000 == 0 && _doPreAlignment == 0 )
@@ -4804,6 +4826,7 @@ void EUTelMilleGBL::processEvent ( LCEvent * event )
     {
 	event -> addCollection ( fittrackvec, _outputTrackCollectionName );
 	event -> addCollection ( fitpointvec, _outputHitCollectionName );
+	event -> addCollection ( dutnormalvec, "dutnormal" );
     }
 
     // fill the rate histos
@@ -6483,10 +6506,10 @@ void EUTelMilleGBL::bookHistos ( )
 	    {
 
 		dx27Hist = AIDAProcessor::histogramFactory ( this ) -> createHistogram1D ( "InputHits/dx27", 100, -5000, 5000 );
-		dx27Hist -> setTitle ( "Hit Shift REF - Plane 2 in x;x_{7}-x_{2} [um];hit pairs" );
+		dx27Hist -> setTitle ( "Hit Shift REF - Plane 1 in x;x_{7}-x_{2} [um];hit pairs" );
 
 		dy27Hist = AIDAProcessor::histogramFactory ( this ) -> createHistogram1D ( "InputHits/dy27", 100, -5000, 5000 );
-		dy27Hist -> setTitle ( "Hit Shift REF - Plane 2 in y;y_{7}-y_{2} [um];hit pairs" );
+		dy27Hist -> setTitle ( "Hit Shift REF - Plane 1 in y;y_{7}-y_{2} [um];hit pairs" );
 	    }
 
 
@@ -6865,13 +6888,13 @@ void EUTelMilleGBL::bookHistos ( )
 
 	    }
 
-	    unbiasedDUTrx = AIDAProcessor::histogramFactory ( this ) -> createHistogram1D ( "GBLOutput/Good/DUT/unbiasedrx", 500, -500, 500 );
+	    unbiasedDUTrx = AIDAProcessor::histogramFactory ( this ) -> createHistogram1D ( "GBLOutput/Good/DUT/unbiasedrx", 100, -500, 500 );
 	    unbiasedDUTrx -> setTitle ( "Unbiased Track Residual at DUT in x;#Deltax [#mum];tracks" );
 
-	    unbiasedDUTry = AIDAProcessor::histogramFactory ( this ) -> createHistogram1D ( "GBLOutput/Good/DUT/unbiasedry", 500, -500, 500 );
+	    unbiasedDUTry = AIDAProcessor::histogramFactory ( this ) -> createHistogram1D ( "GBLOutput/Good/DUT/unbiasedry", 100, -500, 500 );
 	    unbiasedDUTry -> setTitle ( "Unbiased Track Residual at DUT in y;#Deltay [#mum];tracks" );
 
-	    unbiasedDUTrz = AIDAProcessor::histogramFactory ( this ) -> createHistogram1D ( "GBLOutput/Good/DUT/unbiasedrz", 500, -500, 500 );
+	    unbiasedDUTrz = AIDAProcessor::histogramFactory ( this ) -> createHistogram1D ( "GBLOutput/Good/DUT/unbiasedrz", 100, -500, 500 );
 	    unbiasedDUTrz -> setTitle ( "Unbiased Track Residual at DUT in z;#Deltaz [#mum];tracks" );
 
 	    dutrxxHist = AIDAProcessor::histogramFactory ( this ) -> createHistogram2D ( "GBLOutput/Good/DUT/ResidualsX/dutrxx", 100, -500, 500, 100, -15, 15 );
@@ -6949,10 +6972,10 @@ void EUTelMilleGBL::bookHistos ( )
 	    dutrxprobHist = AIDAProcessor::histogramFactory ( this ) -> createHistogram2D ( "GBLOutput/Good/DUT/ResidualsX/dutrxprob", 100, -500, 500, 1000, 0, 1 );
 	    dutrxprobHist -> setTitle ( "Track Residual at DUT in x vs Track prob;#Deltax [#mum];prob" );
 
-	    dutryprobHist = AIDAProcessor::histogramFactory ( this ) -> createHistogram2D ( "GBLOutput/Good/DUT/ResidualsY/dutryprob", 100, -500, 500, 1000, 0, 1 );
+	    dutryprobHist = AIDAProcessor::histogramFactory ( this ) -> createHistogram2D ( "GBLOutput/Good/DUT/ResidualsX/dutryprob", 100, -500, 500, 1000, 0, 1 );
 	    dutryprobHist -> setTitle ( "Track Residual at DUT in y vs Track prob;#Deltay [#mum];prob" );
 
-	    dutrzprobHist = AIDAProcessor::histogramFactory ( this ) -> createHistogram2D ( "GBLOutput/Good/DUT/ResidualsZ/dutrzprob", 100, -500, 500, 1000, 0, 1 );
+	    dutrzprobHist = AIDAProcessor::histogramFactory ( this ) -> createHistogram2D ( "GBLOutput/Good/DUT/ResidualsX/dutrzprob", 100, -500, 500, 1000, 0, 1 );
 	    dutrzprobHist -> setTitle ( "Track Residual at DUT in z vs Track prob;#Deltaz [#mum];prob" );
 
 	    if ( _x0histos == true )

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gear>
+    <!--GEAR file for an AIDA telescope with a 2-plane CBC DUT and a CMS Pixel reference module-->
+    <BField type="ConstantBField" x="0.0" y="0.0" z="0.0"/>
+    <detectors>
+        <detector name="SiPlanes" geartype="SiPlanesParameters">
+            <siplanesID ID="0"/>
+            <siplanesType type="TelescopeWithoutDUT"/>
+            <siplanesNumber number="10"/>
+            <!--z along beam-->
+            <layers>
+                <!--Telescope Plane 0-->
+                <layer>
+                    <ladder ID="0" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="0.000000" 
+			rotationZY="0.000" 	rotationZX="0.000" 	rotationXY="0.000" 
+			sizeX="21.200000" 	sizeY="10.600000" 
+			thickness="0.036000" 	radLength="93.660734"/>
+                    <sensitive ID="0" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="0.000000" 
+			sizeX="21.200000" 	sizeY="10.600000" 	thickness="0.014000" 
+			npixelX="1152" 		npixelY="576" 
+			pitchX="0.018403" 	pitchY="0.018403" 	resolution="0.004500" 
+			rotation1="-1.000" 	rotation2="0.000" 
+			rotation3="0.000" 	rotation4="-1.000" 
+			radLength="93.660734"/>
+                </layer>
+                <!--Telescope Plane 1-->
+                <layer>
+                    <ladder ID="1" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="150.000000" 
+			rotationZY="0.000" 	rotationZX="0.000" 	rotationXY="0.000" 
+			sizeX="21.200000" 	sizeY="10.600000" 
+			thickness="0.036000" 	radLength="93.660734"/>
+                    <sensitive ID="1" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="150.000000" 
+			sizeX="21.200000" 	sizeY="10.600000" 	thickness="0.014000" 
+			npixelX="1152" 		npixelY="576" 
+			pitchX="0.018403" 	pitchY="0.018403" 	resolution="0.004500" 
+			rotation1="-1.000" 	rotation2="0.000" 
+			rotation3="0.000" 	rotation4="-1.000" 
+			radLength="93.660734"/>
+                </layer>
+                <!--Telescope Plane 2-->
+                <layer>
+                    <ladder ID="2" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="300.000000" 
+			rotationZY="0.000" 	rotationZX="0.000" 	rotationXY="0.000" 
+			sizeX="21.200000" 	sizeY="10.600000" 
+			thickness="0.036000" 	radLength="93.660734"/>
+                    <sensitive ID="2" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="300.000000" 
+			sizeX="21.200000" 	sizeY="10.600000" 	thickness="0.014000" 
+			npixelX="1152" 		npixelY="576" 
+			pitchX="0.018403" 	pitchY="0.018403" 	resolution="0.004500" 
+			rotation1="-1.000" 	rotation2="0.000" 
+			rotation3="0.000" 	rotation4="-1.000" 
+			radLength="93.660734"/>
+                </layer>
+                <!--Detector Plane 61-->
+                <layer>
+                    <ladder ID="61" 
+			positionX="0.415811" 	positionY="0.000000" 	positionZ="369.043702" 
+			rotationZY="0.000" 	rotationZX="12.000" 	rotationXY="0.000" 
+			sizeX="22.860000" 	sizeY="10.600000" 
+			thickness="0.120000" 	radLength="93.660734"/>
+                    <sensitive ID="61" 
+			positionX="0.415811" 	positionY="0.000000" 	positionZ="369.043702" 
+			sizeX="22.860000" 	sizeY="10.600000" 	thickness="0.200000" 
+			npixelX="254" 		npixelY="576" 
+			pitchX="0.090000" 	pitchY="0.018403" 	resolution="0.004500" 
+			rotation1="-1.000" 	rotation2="0.000" 
+			rotation3="0.000" 	rotation4="-1.000" 
+			radLength="93.660734"/>
+                </layer>
+                <!--Detector Plane 32-->
+                <layer>
+                    <ladder ID="32" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="371.000000" 
+			rotationZY="0.000" 	rotationZX="12.000" 	rotationXY="0.000" 
+			sizeX="22.860000" 	sizeY="10.600000" 
+			thickness="0.000000" 	radLength="93.660734"/>
+                    <sensitive ID="32" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="371.000000" 
+			sizeX="22.860000" 	sizeY="10.600000" 	thickness="0.000100" 
+			npixelX="254" 		npixelY="576" 
+			pitchX="0.090000" 	pitchY="0.018403" 	resolution="0.004500" 
+			rotation1="-1.000" 	rotation2="0.000" 
+			rotation3="0.000" 	rotation4="-1.000" 
+			radLength="93.660734"/>
+                </layer>
+                <!--Detector Plane 60-->
+                <layer>
+                    <ladder ID="60" 
+			positionX="-0.415811" 	positionY="0.000000" 	positionZ="372.956298" 
+			rotationZY="0.000" 	rotationZX="12.000" 	rotationXY="0.000" 
+			sizeX="22.860000" 	sizeY="10.600000" 
+			thickness="0.120000" 	radLength="93.660734"/>
+                    <sensitive ID="60" 
+			positionX="-0.415811" 	positionY="0.000000" 	positionZ="372.956298" 
+			sizeX="22.860000" 	sizeY="10.600000" 	thickness="0.200000" 
+			npixelX="254" 		npixelY="576" 
+			pitchX="0.090000" 	pitchY="0.018403" 	resolution="0.004500" 
+			rotation1="-1.000" 	rotation2="0.000" 
+			rotation3="0.000" 	rotation4="-1.000" 
+			radLength="93.660734"/>
+                </layer>
+                <!--Telescope Plane 3-->
+                <layer>
+                    <ladder ID="3" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="442.000000" 
+			rotationZY="0.000" 	rotationZX="0.000" 	rotationXY="0.000" 
+			sizeX="21.200000" 	sizeY="10.600000" 
+			thickness="0.036000" 	radLength="93.660734"/>
+                    <sensitive ID="3" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="442.000000" 
+			sizeX="21.200000" 	sizeY="10.600000" 	thickness="0.014000" 
+			npixelX="1152" 		npixelY="576" 
+			pitchX="0.018403" 	pitchY="0.018403" 	resolution="0.004500" 
+			rotation1="-1.000" 	rotation2="0.000" 
+			rotation3="0.000" 	rotation4="-1.000" 
+			radLength="93.660734"/>
+                </layer>
+                <!--Telescope Plane 4-->
+                <layer>
+                    <ladder ID="4" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="592.000000" 
+			rotationZY="0.000" 	rotationZX="0.000" 	rotationXY="0.000" 
+			sizeX="21.200000" 	sizeY="10.600000" 
+			thickness="0.036000" 	radLength="93.660734"/>
+                    <sensitive ID="4" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="592.000000" 
+			sizeX="21.200000" 	sizeY="10.600000" 	thickness="0.014000" 
+			npixelX="1152" 		npixelY="576" 
+			pitchX="0.018403" 	pitchY="0.018403" 	resolution="0.004500" 
+			rotation1="-1.000" 	rotation2="0.000" 
+			rotation3="0.000" 	rotation4="-1.000" 
+			radLength="93.660734"/>
+                </layer>
+                <!--Telescope Plane 5-->
+                <layer>
+                    <ladder ID="5" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="642.000000" 
+			rotationZY="0.000" 	rotationZX="0.000" 	rotationXY="0.000" 
+			sizeX="21.200000" 	sizeY="10.600000" 
+			thickness="0.036000" 	radLength="93.660734"/>
+                    <sensitive ID="5" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="642.000000" 
+			sizeX="21.200000" 	sizeY="10.600000" 	thickness="0.014000" 
+			npixelX="1152" 		npixelY="576" 
+			pitchX="0.018403" 	pitchY="0.018403" 	resolution="0.004500" 
+			rotation1="-1.000" 	rotation2="0.000" 
+			rotation3="0.000" 	rotation4="-1.000" 
+			radLength="93.660734"/>
+                </layer>
+                <!--Detector Plane 9-->
+                <layer>
+                    <ladder ID="9" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="692.000000" 
+			rotationZY="-23.000" 	rotationZX="15.500" 	rotationXY="0.000" 
+			sizeX="62.400000" 	sizeY="16.000000" 
+			thickness="0.200000" 	radLength="93.660734"/>
+                    <sensitive ID="9" 
+			positionX="0.000000" 	positionY="0.000000" 	positionZ="692.000000" 
+			sizeX="64.800000" 	sizeY="16.400000" 	thickness="0.285000" 
+			npixelX="416" 		npixelY="160" 
+			pitchX="0.150000" 	pitchY="0.100000" 	resolution="0.007000" 
+			rotation1="1.000" 	rotation2="0.000" 
+			rotation3="0.000" 	rotation4="-1.000" 
+			radLength="93.660734"/>
+                </layer>
+            </layers>
+        </detector>
+    </detectors>
+</gear>

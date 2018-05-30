@@ -56,6 +56,9 @@ AIDA::IHistogram1D * stubdistx;
 AIDA::IHistogram1D * stubdisty;
 AIDA::IHistogram1D * stubdistx_bit;
 AIDA::IHistogram1D * stubdisty_bit;
+AIDA::IHistogram1D * stub_perch;
+AIDA::IHistogram1D * stub_perch_bit;
+AIDA::IHistogram1D * passed_trackres;
 AIDA::IHistogram1D * faildistx;
 AIDA::IHistogram1D * faildisty;
 AIDA::IHistogram2D * correx;
@@ -75,6 +78,8 @@ CMSStubGenerator::CMSStubGenerator ( ) : Processor ( "CMSStubGenerator" )
 
     registerInputCollection ( LCIO::TRACKERHIT, "InputHitCollectionName", "Input hit collection name. Hits should be in global coordinates and pre-aligned", _inputHitCollectionName, std::string ( " " ) );
 
+    registerInputCollection ( LCIO::TRACKERHIT, "InputFitHitCollectionName", "Input fit hit collection name. ", _inputFitHitCollectionName, std::string ( " " ) );
+
     registerOutputCollection ( LCIO::TRACKERHIT, "OutputHitCollectionName", "Output hit collection name", _outputHitCollectionName, std::string ( " " ) );
 
     registerProcessorParameter ( "DUTPlane1", "This is the first DUT sensorID.", _dutPlane1, int ( 6 ) );
@@ -84,6 +89,8 @@ CMSStubGenerator::CMSStubGenerator ( ) : Processor ( "CMSStubGenerator" )
     registerProcessorParameter ( "KeepDUTHits", "Keep the DUT hits in mode 0 after creating subs or discard them?", _keepDUTHits, bool ( true ) );
 
     registerProcessorParameter ( "MaxResidual", "Maximum distance in channels for two clusters to constitute a stub", _maxResidual, float ( 0.0 ) );
+
+    registerProcessorParameter ( "TrackResidual", "Maximum track residual(if the tracks already exist), in mm", _trackResidualCut, float ( 50.0 ) );
 
     registerProcessorParameter ( "Mode", "0 to merge hits. 1 to drop hits from plane 1, 2 to drop hits from plane 2", _runMode, int ( 0 ) );
 
@@ -131,7 +138,10 @@ void CMSStubGenerator::processEvent ( LCEvent * event )
     }
 
     LCCollectionVec * inputHitCollection = 0;
+    LCCollectionVec * inputFitHitCollection = 0;
     LCCollectionVec * outputHitCollection = 0;
+
+    bool cDoTrackCut = (_trackResidualCut > 0) ? true : false;
 
     try
     {
@@ -141,6 +151,20 @@ void CMSStubGenerator::processEvent ( LCEvent * event )
     {
 	streamlog_out ( MESSAGE2 ) << "No input collection " << _inputHitCollectionName << " found in event " << event -> getEventNumber ( ) << " in run " << event -> getRunNumber ( ) << endl;
 	return;
+    }
+
+    if (cDoTrackCut) {
+	    try
+	    {
+		inputFitHitCollection = static_cast < LCCollectionVec* > ( event -> getCollection ( _inputFitHitCollectionName ) );
+	    }
+	    catch ( DataNotAvailableException& e )
+	    {
+		if((event -> getEventNumber()) < 5) {
+			streamlog_out ( MESSAGE2 ) << "No input collection " << _inputFitHitCollectionName << " found in event " << event -> getEventNumber ( ) << " in run " << event -> getRunNumber ( ) << ". Processing without track cuts" << endl;
+		}
+		cDoTrackCut = false;
+	    }
     }
 
     try
@@ -213,113 +237,188 @@ void CMSStubGenerator::processEvent ( LCEvent * event )
 
     if ( _runMode == 0)
     {
-	for ( unsigned int iHitPlane1 = 0; iHitPlane1 < dutPlane1Hits.size ( ); iHitPlane1++ )
-	{
-	    TrackerHitImpl * Hit1 = dynamic_cast < TrackerHitImpl* > ( inputHitCollection -> getElementAt ( dutPlane1Hits[iHitPlane1] ) );
-	    float x1 = -1.0;
-	    float y1 = -1.0;
-	    float q1 = -1.0;
-	    const double* pos1 = Hit1 -> getPosition ( );
-	    TrackerDataImpl* clusterVector1 = static_cast < TrackerDataImpl* > ( Hit1 -> getRawHits ( ) [0] );
-	    EUTelSimpleVirtualCluster * cluster1 = 0;
-	    cluster1 = new EUTelSparseClusterImpl < EUTelGenericSparsePixel > ( clusterVector1 );
-	    if ( cluster1 != 0 )
-	    {
-		cluster1 -> getCenterOfGravity ( x1, y1 );
-		q1 = cluster1 -> getTotalCharge ( );
-	    }
-
-	    for ( unsigned int iHitPlane2 = 0; iHitPlane2 < dutPlane2Hits.size ( ); iHitPlane2++ )
-	    {
-		TrackerHitImpl * Hit2 = dynamic_cast < TrackerHitImpl* > ( inputHitCollection -> getElementAt ( dutPlane2Hits[iHitPlane2] ) );
-		float x2 = -1.0;
-		float y2 = -1.0;
-		float q2 = -1.0;
-		const double* pos2 = Hit2 -> getPosition ( );
-		TrackerDataImpl* clusterVector2 = static_cast < TrackerDataImpl* > ( Hit2 -> getRawHits ( ) [0] );
-		EUTelSimpleVirtualCluster * cluster2 = 0;
-		cluster2 = new EUTelSparseClusterImpl < EUTelGenericSparsePixel > ( clusterVector2 );
-		if ( cluster2 != 0 )
+	if (dutPlane1Hits.size() != 1 || dutPlane2Hits.size() != 1) {
+		//streamlog_out ( MESSAGE2 ) << "Number of hits per DUT does not match - discarding the event for stubs" << endl;
+	} else {
+		for ( unsigned int iHitPlane1 = 0; iHitPlane1 < dutPlane1Hits.size ( ); iHitPlane1++ )
 		{
-		    cluster2 -> getCenterOfGravity ( x2, y2 );
-		    q2 = cluster2 -> getTotalCharge ( );
-		}
-		streamlog_out ( DEBUG0 ) << " x1 " << x1 << " y1 " << y1 << " q1 " << q1 << " x2 " << x2 << " y2 " << y2 << " q2 " << q2 << " evt " << evt -> getRunNumber ( ) << endl;
-
-		correx -> fill ( x1, x2 );
-		correy -> fill ( y1, y2 );
-
-		float dx = -1.0;
-		float dy = -1.0;
-		dx = fabs ( x1 - x2 );
-		dy = fabs ( y1 - y2 );
-
-		if ( dx < _maxResidual && dy < _maxResidual )
-		{
-		    double newPos[3];
-		    newPos[0] = ( pos1[0] + pos2[0] ) / 2.0;
-		    newPos[1] = ( pos1[1] + pos2[1] ) / 2.0;
-		    newPos[2] = ( pos1[2] + pos2[2] ) / 2.0;
-
-		    const double* hitpos = newPos;
-		    CellIDEncoder < TrackerHitImpl > idHitEncoder ( EUTELESCOPE::HITENCODING, outputHitCollection );
-		    TrackerHitImpl* hit = new TrackerHitImpl;
-		    hit -> setPosition ( &hitpos[0] );
-		    float cov[TRKHITNCOVMATRIX] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-		    hit -> setCovMatrix ( cov );
-		    hit -> setType ( kEUTelGenericSparseClusterImpl );
-		    // assume all times are equal
-		    hit -> setTime ( Hit1 -> getTime ( ) );
-
-		    LCObjectVec clusterVec;
-		    clusterVec.push_back ( clusterVector1 );
-		    clusterVec.push_back ( clusterVector2 );
-
-		    hit -> rawHits ( ) = clusterVec;
-
-		    idHitEncoder["sensorID"] =  _outputSensorID ;
-		    idHitEncoder["properties"] = 0;
-
-		    idHitEncoder.setCellID ( hit );
-
-		    stubdistx -> fill ( x1 - x2 );
-		    stubdisty -> fill ( y1 - y2 );
-
-		    bool bitpresent = false;
-		    bool writeoutput = true;
-
-		    if ( stub1 == "1" || stub2 == "1" || stub3 == "1" )
+		    TrackerHitImpl * Hit1 = dynamic_cast < TrackerHitImpl* > ( inputHitCollection -> getElementAt ( dutPlane1Hits[iHitPlane1] ) );
+		    float x1 = -1.0;
+		    float y1 = -1.0;
+		    float q1 = -1.0;
+		    const double* pos1 = Hit1 -> getPosition ( );
+		    TrackerDataImpl* clusterVector1 = static_cast < TrackerDataImpl* > ( Hit1 -> getRawHits ( ) [0] );
+		    EUTelSimpleVirtualCluster * cluster1 = 0;
+		    cluster1 = new EUTelSparseClusterImpl < EUTelGenericSparsePixel > ( clusterVector1 );
+		    if ( cluster1 != 0 )
 		    {
-			stubdistx_bit -> fill ( x1 - x2 );
-			stubdisty_bit -> fill ( y1 - y2 );
-
-			bitpresent = true;
-
-
+			cluster1 -> getCenterOfGravity ( x1, y1 );
+			q1 = cluster1 -> getTotalCharge ( );
 		    }
 
-		    if ( _requirestubflag == 1 && bitpresent == false )
-		    {
-			writeoutput = false;
+		    // here do the cut in case the fit hit collection is present
+		    if(cDoTrackCut) {
+	    		// for fit huts
+	    		CellIDDecoder < TrackerHitImpl > inputFitHitCellIDDecoder ( inputFitHitCollection );
+			//
+			bool cTrackCutPassed = false;
+			// now check the cut
+			for ( int iInputFitHits = 0; iInputFitHits < inputFitHitCollection -> getNumberOfElements ( ); iInputFitHits++ )
+	    		{
+				TrackerHitImpl * inputFitHit = dynamic_cast < TrackerHitImpl* > ( inputFitHitCollection -> getElementAt ( iInputFitHits ) );
+				int sensorID = inputFitHitCellIDDecoder ( inputFitHit ) ["sensorID"];
+				if (sensorID == _dutPlane1) {
+					const double* pos_fit = inputFitHit -> getPosition ( );
+					if(evt -> getEventNumber ( ) < 100) streamlog_out ( MESSAGE2 ) << "Fit position: " << pos_fit[0] << ", hit pos: " << pos1[0] << endl;
+					if ( fabs(pos_fit[0] - pos1[0]) < _trackResidualCut ) {
+						cTrackCutPassed = true; 
+						break;
+					}
+				}
+
+			}
+
+			// skip this hit if the track cut failed
+			if(!cTrackCutPassed) {
+				// need to fill not passed, passed will be filled after the second cut
+				if (inputFitHitCollection -> getNumberOfElements() > 0) passed_trackres->fill(0);
+				else passed_trackres->fill(2);
+				continue;
+			} else {
+				if(evt -> getEventNumber ( ) < 100) streamlog_out ( MESSAGE2 ) << "First Cut passed" << endl;
+			}
 		    }
 
-		    if ( writeoutput == true )
+		    for ( unsigned int iHitPlane2 = 0; iHitPlane2 < dutPlane2Hits.size ( ); iHitPlane2++ )
 		    {
-			outputHitCollection -> push_back ( hit );
-			_totalstubs++;
-			stubsinthisevent++;
-			stubmap_top_x -> fill ( x1 );
-			stubmap_bot_x -> fill ( x2 );
-			stubmap_top_y -> fill ( y1 );
-			stubmap_bot_y -> fill ( y2 );
-		    }
+			TrackerHitImpl * Hit2 = dynamic_cast < TrackerHitImpl* > ( inputHitCollection -> getElementAt ( dutPlane2Hits[iHitPlane2] ) );
+			float x2 = -1.0;
+			float y2 = -1.0;
+			float q2 = -1.0;
+			const double* pos2 = Hit2 -> getPosition ( );
+			TrackerDataImpl* clusterVector2 = static_cast < TrackerDataImpl* > ( Hit2 -> getRawHits ( ) [0] );
+			EUTelSimpleVirtualCluster * cluster2 = 0;
+			cluster2 = new EUTelSparseClusterImpl < EUTelGenericSparsePixel > ( clusterVector2 );
+			if ( cluster2 != 0 )
+			{
+			    cluster2 -> getCenterOfGravity ( x2, y2 );
+			    q2 = cluster2 -> getTotalCharge ( );
+			}
 
-		}
-		else
-		{
-		    faildistx -> fill ( x1 - x2 );
-		    faildisty -> fill ( y1 - y2 );
-		}
+			// here do the cut in case the fit hit collection is present
+		    	if(cDoTrackCut) {
+				// for fit huts
+				CellIDDecoder < TrackerHitImpl > inputFitHitCellIDDecoder ( inputFitHitCollection );
+				//
+				bool cTrackCutPassed = false;
+				// now check the cut
+				for ( int iInputFitHits = 0; iInputFitHits < inputFitHitCollection -> getNumberOfElements ( ); iInputFitHits++ )
+				{
+					TrackerHitImpl * inputFitHit = dynamic_cast < TrackerHitImpl* > ( inputFitHitCollection -> getElementAt ( iInputFitHits ) );
+					int sensorID = inputFitHitCellIDDecoder ( inputFitHit ) ["sensorID"];
+					if (sensorID == _dutPlane2) {
+						const double* pos_fit = inputFitHit -> getPosition ( );
+						if ( fabs(pos_fit[0] - pos2[0]) < _trackResidualCut ) {
+							cTrackCutPassed = true; 
+							break;
+						}
+					}
+				}
+
+				// skip this hit if the track cut failed
+				if(!cTrackCutPassed) {
+					// need to fill not passed
+					if (inputFitHitCollection -> getNumberOfElements() > 0) passed_trackres->fill(0);
+					else passed_trackres->fill(2);
+					continue;
+				} else {
+					passed_trackres->fill(1);
+				}
+			}
+
+			streamlog_out ( DEBUG0 ) << " x1 " << x1 << " y1 " << y1 << " q1 " << q1 << " x2 " << x2 << " y2 " << y2 << " q2 " << q2 << " evt " << evt -> getRunNumber ( ) << endl;
+
+			correx -> fill ( x1, x2 );
+			correy -> fill ( y1, y2 );
+
+			float dx = -1.0;
+			float dy = -1.0;
+			dx = fabs ( x1 - x2 );
+			dy = fabs ( y1 - y2 );
+		
+			if ( dx < _maxResidual && dy < _maxResidual )
+			{
+			    double newPos[3];
+			    newPos[0] = ( pos1[0] + pos2[0] ) / 2.0;
+			    newPos[1] = ( pos1[1] + pos2[1] ) / 2.0;
+			    newPos[2] = ( pos1[2] + pos2[2] ) / 2.0;
+
+			    const double* hitpos = newPos;
+			    CellIDEncoder < TrackerHitImpl > idHitEncoder ( EUTELESCOPE::HITENCODING, outputHitCollection );
+			    TrackerHitImpl* hit = new TrackerHitImpl;
+			    hit -> setPosition ( &hitpos[0] );
+			    float cov[TRKHITNCOVMATRIX] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+			    hit -> setCovMatrix ( cov );
+			    hit -> setType ( kEUTelGenericSparseClusterImpl );
+			    // assume all times are equal
+			    hit -> setTime ( Hit1 -> getTime ( ) );
+
+			    LCObjectVec clusterVec;
+			    clusterVec.push_back ( clusterVector1 );
+			    clusterVec.push_back ( clusterVector2 );
+
+			    hit -> rawHits ( ) = clusterVec;
+
+			    idHitEncoder["sensorID"] =  _outputSensorID ;
+			    idHitEncoder["properties"] = 0;
+
+			    idHitEncoder.setCellID ( hit );
+
+			    stubdistx -> fill ( x1 - x2 );
+			    stubdisty -> fill ( y1 - y2 );
+
+			    bool bitpresent = false;
+			    bool writeoutput = true;
+
+			    // fill channel id
+			    stub_perch -> fill ( x2 );
+
+			    if ( stub1 == "1" || stub2 == "1" || stub3 == "1" )
+			    {
+				stubdistx_bit -> fill ( x1 - x2 );
+				stubdisty_bit -> fill ( y1 - y2 );
+
+				// fill channel id
+				if (fabs(x1 - x2) <= 7) stub_perch_bit -> fill ( x2 );
+
+				bitpresent = true;
+
+
+			    }
+
+			    if ( _requirestubflag == 1 && bitpresent == false )
+			    {
+				writeoutput = false;
+			    }
+
+			    if ( writeoutput == true )
+			    {
+				outputHitCollection -> push_back ( hit );
+				_totalstubs++;
+				stubsinthisevent++;
+				stubmap_top_x -> fill ( x1 );
+				stubmap_bot_x -> fill ( x2 );
+				stubmap_top_y -> fill ( y1 );
+				stubmap_bot_y -> fill ( y2 );
+			    }
+
+			}
+			else
+			{
+			    faildistx -> fill ( x1 - x2 );
+			    faildisty -> fill ( y1 - y2 );
+			}
+		    }
 	    }
 	}
     }
@@ -403,11 +502,20 @@ void CMSStubGenerator::bookHistos( )
 	stubdisty_bit = AIDAProcessor::histogramFactory ( this ) -> createHistogram1D ( "Stub Distance in y, bit required", 101, -50, 50 );
 	stubdisty_bit -> setTitle ( "Stub Distance in y, bit required;y_{0} - y_{1} [channels];Entries" );
 
+	stub_perch = AIDAProcessor::histogramFactory ( this ) -> createHistogram1D ( "Stub Number Per Channel", 254, 0, 254 );
+	stub_perch -> setTitle ( "Stub Number per Channel;Channel;Entries" );
+
+	stub_perch_bit = AIDAProcessor::histogramFactory ( this ) -> createHistogram1D ( "Stub Number Per Channel, bit required", 254, 0, 254 );
+	stub_perch_bit -> setTitle ( "Stub Number per Channel, bit required;Channel;Entries" );
+
 	faildistx = AIDAProcessor::histogramFactory ( this ) -> createHistogram1D ( "Fail Distance in x", 1000, -500, 500 );
 	faildistx -> setTitle ( "Fail Distance in x;x_{0} - x_{1} [channels];Entries" );
 
 	faildisty = AIDAProcessor::histogramFactory ( this ) -> createHistogram1D ( "Fail Distance in y", 1000, -500, 500 );
 	faildisty -> setTitle ( "Fail Distance in y;y_{0} - y_{1} [channels];Entries" );
+
+	passed_trackres = AIDAProcessor::histogramFactory ( this ) -> createHistogram1D ( "Passed Track Residual Cut", 3, 0, 3 );
+	passed_trackres -> setTitle ( ("Passed Track Residual Cut (" + to_string(_trackResidualCut) + " mm);0 - not passed, 1 - passed, 2 - no track;Entries").c_str());
 
 	correx = AIDAProcessor::histogramFactory ( this ) -> createHistogram2D ( "Cluster correlation in x", 1016, 0, 1015, 1016, 0, 1015 );
 	correx -> setTitle ( "Cluster Correlation in x;x_{0} [Channel];x_{1} [Channel]" );
