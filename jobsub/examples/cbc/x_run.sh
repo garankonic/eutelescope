@@ -10,11 +10,11 @@
 
 # usage: sh x_run.sh runnumber
 
-#jobsub.py -c config.cfg -csv runlist.csv telescope-converter $1
-#jobsub.py -c config.cfg -csv runlist.csv combined-clustering $1
-#jobsub.py -c config.cfg -csv runlist.csv combined-filter $1
-#jobsub.py -c config.cfg -csv runlist.csv combined-hitmaker $1
-#jobsub.py -c config.cfg -csv runlist.csv stub $1
+jobsub.py -c config.cfg -csv runlist.csv telescope-converter $1
+jobsub.py -c config.cfg -csv runlist.csv combined-clustering $1
+jobsub.py -c config.cfg -csv runlist.csv combined-filter $1
+jobsub.py -c config.cfg -csv runlist.csv combined-hitmaker $1
+jobsub.py -c config.cfg -csv runlist.csv stub $1
 jobsub.py -c config_align.cfg -csv runlist.csv alignment-gbl-1 $1
 jobsub.py -c config_align.cfg -csv runlist.csv alignment-gbl-2 $1
 jobsub.py -c config_align.cfg -csv runlist.csv alignment-gbl-3 $1
